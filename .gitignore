@@ -1,0 +1,13 @@
+**/node_modules/
+**/target/
+**/dist/
+backend/src/main/resources/static/
+runtime/
+config/application.properties
+**/private-files/
+**/data/
+.env
+*.log
+*.class
+.idea/
+.vscode/

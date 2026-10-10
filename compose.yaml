@@ -1,0 +1,45 @@
+services:
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: el_tumi
+      MYSQL_USER: tumi
+      MYSQL_PASSWORD: ${DB_PASSWORD:-tumi_local_2026}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_tumi_local_2026}
+      TZ: America/Lima
+    ports:
+      - "127.0.0.1:${MYSQL_PORT:-3307}:3306"
+    volumes:
+      - tumi_mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h127.0.0.1 -uroot -p\"$$MYSQL_ROOT_PASSWORD\" --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+  app:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:mysql://db:3306/el_tumi?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Lima
+      DB_USER: tumi
+      DB_PASSWORD: ${DB_PASSWORD:-tumi_local_2026}
+      APP_DEMO: ${APP_DEMO:-true}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@eltumi.local}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-ElTumi2026!}
+      BIND_ADDRESS: 0.0.0.0
+      FILES_PATH: /app/private-files
+      OLLAMA_ENABLED: ${OLLAMA_ENABLED:-false}
+      OLLAMA_URL: http://host.docker.internal:11434
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen2.5:3b}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "127.0.0.1:${WEB_PORT:-8080}:8080"
+    volumes:
+      - tumi_private_files:/app/private-files
+volumes:
+  tumi_mysql:
+  tumi_private_files:

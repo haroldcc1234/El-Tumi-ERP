@@ -1,0 +1,11 @@
+**/node_modules
+**/target
+**/dist
+backend/src/main/resources/static
+runtime
+config/application.properties
+**/private-files
+**/data
+.env
+.git
+*.zip

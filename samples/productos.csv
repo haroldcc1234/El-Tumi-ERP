@@ -1,0 +1,3 @@
+code,name,category,unit,tax_type,tax_rate,status
+CSV-001,Servilletas blancas,SUMINISTRO,UNIDAD,GRAVADO,18,ACTIVO
+CSV-002,Sal de cocina,INSUMO,KG,GRAVADO,18,ACTIVO

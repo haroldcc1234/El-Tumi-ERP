@@ -1,0 +1,57 @@
+server:
+  address: ${BIND_ADDRESS:127.0.0.1}
+  port: ${PORT:8080}
+  error:
+    include-message: never
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/el_tumi?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Lima}
+    username: ${DB_USER:root}
+    password: ${DB_PASSWORD:123456}
+    hikari:
+      connection-init-sql: "SET time_zone = '-05:00'"
+  flyway:
+    enabled: true
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 11MB
+  jackson:
+    time-zone: America/Lima
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+app:
+  demo: ${APP_DEMO:true}
+  admin-email: ${ADMIN_EMAIL:admin@eltumi.local}
+  admin-password: ${ADMIN_PASSWORD:ElTumi2026!}
+  cors: ${CORS_ORIGINS:http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000,http://127.0.0.1:3000,http://localhost:8088}
+  files: ${FILES_PATH:./private-files}
+  zone: America/Lima
+  ollama-url: ${OLLAMA_URL:http://localhost:11434}
+  ollama-model: ${OLLAMA_MODEL:qwen2.5:3b}
+  ollama-enabled: ${OLLAMA_ENABLED:false}
+---
+spring:
+  config:
+    activate:
+      on-profile: demo
+  datasource:
+    url: jdbc:h2:file:./data/el-tumi;MODE=MySQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password: ""
+    hikari:
+      connection-init-sql: SELECT 1
+---
+spring:
+  config:
+    activate:
+      on-profile: test
+  datasource:
+    url: jdbc:h2:mem:tumi;MODE=MySQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1
+    username: sa
+    password: ""
+    hikari:
+      connection-init-sql: SELECT 1

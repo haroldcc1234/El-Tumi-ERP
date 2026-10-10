@@ -1,0 +1,20 @@
+EL TUMI ERP - INICIO
+
+1. Extrae todo el ZIP en una carpeta.
+2. Para probar de inmediato, instala Java 17 o 21 y abre iniciar-demo.cmd.
+3. Espera "Started TumiApplication" y entra a http://localhost:8080
+
+Correo: admin@eltumi.local
+Clave:  ElTumi2026!
+
+PARA UTILIZAR MYSQL:
+- Inicia MySQL 8.0.
+- Ejecuta database/crear_base_mysql.sql una sola vez en MySQL Workbench.
+- Abre iniciar.cmd y espera que arranque.
+- Si usas otro usuario o clave de MySQL, ajusta config/application.properties.
+
+El ejecutable incluye React. No necesitas npm ni Maven para iniciar.
+El modo demo utiliza H2; el modo normal utiliza MySQL. Sus datos son independientes.
+El manual de instalacion completo esta en README.md y el de uso en docs/MANUAL.md.
+
+Los comprobantes son internos. La emision real ante SUNAT requiere una integracion adicional.

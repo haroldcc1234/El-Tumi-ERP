@@ -1,0 +1,3343 @@
+[
+  {
+    "key": "partners",
+    "title": "Clientes y proveedores",
+    "module": "logistics",
+    "fields": [
+      {
+        "key": "kind",
+        "label": "Tipo",
+        "type": "select",
+        "required": true,
+        "readonly": false,
+        "default": "PROVEEDOR",
+        "options": [
+          "PROVEEDOR",
+          "CLIENTE",
+          "AMBOS"
+        ]
+      },
+      {
+        "key": "name",
+        "label": "Nombre",
+        "type": "text",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "document",
+        "label": "RUC o DNI",
+        "type": "text",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "phone",
+        "label": "Teléfono",
+        "type": "text",
+        "required": false,
+        "readonly": false
+      },
+      {
+        "key": "email",
+        "label": "Correo",
+        "type": "email",
+        "required": false,
+        "readonly": false
+      },
+      {
+        "key": "address",
+        "label": "Dirección",
+        "type": "text",
+        "required": false,
+        "readonly": false
+      },
+      {
+        "key": "bank",
+        "label": "Banco",
+        "type": "text",
+        "required": false,
+        "readonly": false
+      },
+      {
+        "key": "bank_account",
+        "label": "Cuenta bancaria",
+        "type": "text",
+        "required": false,
+        "readonly": false
+      },
+      {
+        "key": "contact",
+        "label": "Contacto",
+        "type": "text",
+        "required": false,
+        "readonly": false
+      },
+      {
+        "key": "status",
+        "label": "Estado",
+        "type": "select",
+        "required": true,
+        "readonly": false,
+        "default": "ACTIVO",
+        "options": [
+          "ACTIVO",
+          "INACTIVO"
+        ]
+      }
+    ],
+    "actions": [],
+    "readonly": false,
+    "description": ""
+  },
+  {
+    "key": "warehouses",
+    "title": "Almacenes",
+    "module": "logistics",
+    "fields": [
+      {
+        "key": "name",
+        "label": "Nombre",
+        "type": "text",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "location",
+        "label": "Ubicación",
+        "type": "text",
+        "required": false,
+        "readonly": false
+      },
+      {
+        "key": "category",
+        "label": "Categoría",
+        "type": "text",
+        "required": false,
+        "readonly": false
+      },
+      {
+        "key": "manager",
+        "label": "Responsable",
+        "type": "text",
+        "required": false,
+        "readonly": false
+      },
+      {
+        "key": "status",
+        "label": "Estado",
+        "type": "select",
+        "required": true,
+        "readonly": false,
+        "default": "ACTIVO",
+        "options": [
+          "ACTIVO",
+          "INACTIVO"
+        ]
+      }
+    ],
+    "actions": [],
+    "readonly": false,
+    "description": ""
+  },
+  {
+    "key": "products",
+    "title": "Insumos y productos",
+    "module": "logistics",
+    "fields": [
+      {
+        "key": "code",
+        "label": "Código",
+        "type": "text",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "name",
+        "label": "Nombre",
+        "type": "text",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "category",
+        "label": "Categoría",
+        "type": "select",
+        "required": true,
+        "readonly": false,
+        "default": "INSUMO",
+        "options": [
+          "INSUMO",
+          "SUMINISTRO",
+          "BIEN"
+        ]
+      },
+      {
+        "key": "unit",
+        "label": "Unidad base",
+        "type": "select",
+        "required": true,
+        "readonly": false,
+        "default": "KG",
+        "options": [
+          "KG",
+          "G",
+          "L",
+          "ML",
+          "NIU"
+        ]
+      },
+      {
+        "key": "tax_type",
+        "label": "Afectación",
+        "type": "select",
+        "required": true,
+        "readonly": false,
+        "default": "GRAVADO",
+        "options": [
+          "GRAVADO",
+          "EXONERADO",
+          "INAFECTO"
+        ]
+      },
+      {
+        "key": "tax_rate",
+        "label": "IGV %",
+        "type": "money",
+        "required": true,
+        "readonly": false,
+        "default": 18,
+        "min": 0
+      },
+      {
+        "key": "average_cost",
+        "label": "Costo promedio",
+        "type": "money",
+        "required": true,
+        "readonly": true,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "barcode",
+        "label": "Código de barras",
+        "type": "text",
+        "required": false,
+        "readonly": false
+      },
+      {
+        "key": "image_id",
+        "label": "Imagen",
+        "type": "file",
+        "required": false,
+        "readonly": false
+      },
+      {
+        "key": "status",
+        "label": "Estado",
+        "type": "select",
+        "required": true,
+        "readonly": false,
+        "default": "ACTIVO",
+        "options": [
+          "ACTIVO",
+          "INACTIVO"
+        ]
+      }
+    ],
+    "actions": [],
+    "readonly": false,
+    "description": ""
+  },
+  {
+    "key": "stocks",
+    "title": "Existencias por almacén",
+    "module": "logistics",
+    "fields": [
+      {
+        "key": "product_id",
+        "label": "Producto",
+        "type": "reference",
+        "required": true,
+        "readonly": false,
+        "ref": "products"
+      },
+      {
+        "key": "warehouse_id",
+        "label": "Almacén",
+        "type": "reference",
+        "required": true,
+        "readonly": false,
+        "ref": "warehouses"
+      },
+      {
+        "key": "quantity",
+        "label": "Existencia",
+        "type": "number",
+        "required": true,
+        "readonly": true,
+        "default": 0,
+        "min": 0
+      }
+    ],
+    "actions": [],
+    "readonly": true,
+    "description": ""
+  },
+  {
+    "key": "stock_moves",
+    "title": "Kardex",
+    "module": "logistics",
+    "fields": [
+      {
+        "key": "product_id",
+        "label": "Producto",
+        "type": "reference",
+        "required": true,
+        "readonly": false,
+        "ref": "products"
+      },
+      {
+        "key": "warehouse_id",
+        "label": "Almacén",
+        "type": "reference",
+        "required": true,
+        "readonly": false,
+        "ref": "warehouses"
+      },
+      {
+        "key": "kind",
+        "label": "Movimiento",
+        "type": "select",
+        "required": true,
+        "readonly": false,
+        "default": "INGRESO",
+        "options": [
+          "INGRESO",
+          "SALIDA",
+          "MERMA",
+          "AJUSTE_ENTRADA",
+          "AJUSTE_SALIDA"
+        ]
+      },
+      {
+        "key": "quantity",
+        "label": "Cantidad",
+        "type": "number",
+        "required": true,
+        "readonly": false,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "unit_cost",
+        "label": "Costo unitario",
+        "type": "money",
+        "required": true,
+        "readonly": false,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "date",
+        "label": "Fecha",
+        "type": "date",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "reference",
+        "label": "Referencia",
+        "type": "text",
+        "required": false,
+        "readonly": false
+      },
+      {
+        "key": "notes",
+        "label": "Observaciones",
+        "type": "textarea",
+        "required": false,
+        "readonly": false
+      },
+      {
+        "key": "balance",
+        "label": "Saldo",
+        "type": "number",
+        "required": true,
+        "readonly": true,
+        "default": 0,
+        "min": 0
+      }
+    ],
+    "actions": [],
+    "readonly": true,
+    "description": ""
+  },
+  {
+    "key": "stock_rules",
+    "title": "Reabastecimiento",
+    "module": "logistics",
+    "fields": [
+      {
+        "key": "product_id",
+        "label": "Producto",
+        "type": "reference",
+        "required": true,
+        "readonly": false,
+        "ref": "products"
+      },
+      {
+        "key": "warehouse_id",
+        "label": "Almacén",
+        "type": "reference",
+        "required": true,
+        "readonly": false,
+        "ref": "warehouses"
+      },
+      {
+        "key": "supplier_id",
+        "label": "Proveedor preferido",
+        "type": "reference",
+        "required": false,
+        "readonly": false,
+        "ref": "partners"
+      },
+      {
+        "key": "minimum",
+        "label": "Stock mínimo",
+        "type": "number",
+        "required": true,
+        "readonly": false,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "maximum",
+        "label": "Stock máximo",
+        "type": "number",
+        "required": true,
+        "readonly": false,
+        "default": 100,
+        "min": 0
+      }
+    ],
+    "actions": [
+      "suggest"
+    ],
+    "readonly": false,
+    "description": ""
+  },
+  {
+    "key": "purchases",
+    "title": "Órdenes de compra",
+    "module": "logistics",
+    "fields": [
+      {
+        "key": "code",
+        "label": "Código",
+        "type": "text",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "partner_id",
+        "label": "Proveedor",
+        "type": "reference",
+        "required": true,
+        "readonly": false,
+        "ref": "partners"
+      },
+      {
+        "key": "warehouse_id",
+        "label": "Almacén destino",
+        "type": "reference",
+        "required": true,
+        "readonly": false,
+        "ref": "warehouses"
+      },
+      {
+        "key": "date",
+        "label": "Fecha pedido",
+        "type": "date",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "due_date",
+        "label": "Fecha de pago",
+        "type": "date",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "budget_id",
+        "label": "Partida presupuestal",
+        "type": "reference",
+        "required": false,
+        "readonly": false,
+        "ref": "budgets"
+      },
+      {
+        "key": "status",
+        "label": "Estado",
+        "type": "select",
+        "required": true,
+        "readonly": true,
+        "default": "BORRADOR",
+        "options": [
+          "BORRADOR",
+          "ENVIADO",
+          "PARCIAL",
+          "ENTREGADO",
+          "ANULADO",
+          "PAGADO"
+        ]
+      },
+      {
+        "key": "total",
+        "label": "Total",
+        "type": "money",
+        "required": true,
+        "readonly": true,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "notes",
+        "label": "Observaciones",
+        "type": "textarea",
+        "required": false,
+        "readonly": false
+      }
+    ],
+    "actions": [
+      "send",
+      "receive",
+      "cancel"
+    ],
+    "readonly": false,
+    "description": "Registra el pedido y recibe cantidades parciales. Cada recepción genera stock, Kardex y una cuenta por pagar."
+  },
+  {
+    "key": "receipts",
+    "title": "Recepciones",
+    "module": "logistics",
+    "fields": [
+      {
+        "key": "purchase_id",
+        "label": "Orden de compra",
+        "type": "reference",
+        "required": true,
+        "readonly": false,
+        "ref": "purchases"
+      },
+      {
+        "key": "date",
+        "label": "Fecha",
+        "type": "date",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "total",
+        "label": "Total",
+        "type": "money",
+        "required": true,
+        "readonly": true,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "file_id",
+        "label": "Documento adjunto",
+        "type": "file",
+        "required": false,
+        "readonly": false
+      },
+      {
+        "key": "reference",
+        "label": "Documento del proveedor",
+        "type": "text",
+        "required": false,
+        "readonly": false
+      }
+    ],
+    "actions": [],
+    "readonly": true,
+    "description": ""
+  },
+  {
+    "key": "accounts",
+    "title": "Plan contable",
+    "module": "accounting",
+    "fields": [
+      {
+        "key": "code",
+        "label": "Código",
+        "type": "text",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "name",
+        "label": "Nombre",
+        "type": "text",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "type",
+        "label": "Tipo",
+        "type": "select",
+        "required": true,
+        "readonly": false,
+        "default": "ACTIVO",
+        "options": [
+          "ACTIVO",
+          "PASIVO",
+          "PATRIMONIO",
+          "INGRESO",
+          "GASTO",
+          "COSTO"
+        ]
+      },
+      {
+        "key": "nature",
+        "label": "Naturaleza",
+        "type": "select",
+        "required": true,
+        "readonly": false,
+        "default": "DEUDORA",
+        "options": [
+          "DEUDORA",
+          "ACREEDORA"
+        ]
+      },
+      {
+        "key": "parent_id",
+        "label": "Cuenta padre",
+        "type": "reference",
+        "required": false,
+        "readonly": false,
+        "ref": "accounts"
+      },
+      {
+        "key": "postable",
+        "label": "Permite asientos",
+        "type": "select",
+        "required": true,
+        "readonly": false,
+        "default": "SI",
+        "options": [
+          "SI",
+          "NO"
+        ]
+      },
+      {
+        "key": "status",
+        "label": "Estado",
+        "type": "select",
+        "required": true,
+        "readonly": false,
+        "default": "ACTIVO",
+        "options": [
+          "ACTIVO",
+          "INACTIVO"
+        ]
+      }
+    ],
+    "actions": [],
+    "readonly": false,
+    "description": ""
+  },
+  {
+    "key": "journals",
+    "title": "Libro diario",
+    "module": "accounting",
+    "fields": [
+      {
+        "key": "date",
+        "label": "Fecha",
+        "type": "date",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "description",
+        "label": "Descripción",
+        "type": "text",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "reference",
+        "label": "Referencia",
+        "type": "text",
+        "required": false,
+        "readonly": false
+      },
+      {
+        "key": "status",
+        "label": "Estado",
+        "type": "select",
+        "required": true,
+        "readonly": true,
+        "default": "REGISTRADO",
+        "options": [
+          "REGISTRADO",
+          "REVERSADO"
+        ]
+      },
+      {
+        "key": "total",
+        "label": "Total",
+        "type": "money",
+        "required": true,
+        "readonly": true,
+        "default": 0,
+        "min": 0
+      }
+    ],
+    "actions": [
+      "reverse"
+    ],
+    "readonly": true,
+    "description": ""
+  },
+  {
+    "key": "periods",
+    "title": "Períodos cerrados",
+    "module": "accounting",
+    "fields": [
+      {
+        "key": "period",
+        "label": "Período AAAA-MM",
+        "type": "text",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "notes",
+        "label": "Observaciones",
+        "type": "textarea",
+        "required": false,
+        "readonly": false
+      }
+    ],
+    "actions": [],
+    "readonly": false,
+    "description": "Los movimientos contables del período cerrado quedan bloqueados."
+  },
+  {
+    "key": "receivables",
+    "title": "Cuentas por cobrar",
+    "module": "accounting",
+    "fields": [
+      {
+        "key": "code",
+        "label": "Código",
+        "type": "text",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "party",
+        "label": "Cliente / beneficiario",
+        "type": "text",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "document",
+        "label": "RUC o DNI",
+        "type": "text",
+        "required": false,
+        "readonly": false
+      },
+      {
+        "key": "date",
+        "label": "Emisión",
+        "type": "date",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "due_date",
+        "label": "Vencimiento",
+        "type": "date",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "total",
+        "label": "Importe total",
+        "type": "money",
+        "required": true,
+        "readonly": false,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "paid",
+        "label": "Pagado",
+        "type": "money",
+        "required": true,
+        "readonly": true,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "credit",
+        "label": "Nota de crédito",
+        "type": "money",
+        "required": true,
+        "readonly": true,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "status",
+        "label": "Estado",
+        "type": "select",
+        "required": true,
+        "readonly": true,
+        "default": "PENDIENTE",
+        "options": [
+          "PENDIENTE",
+          "PARCIAL",
+          "PAGADA",
+          "ANULADA"
+        ]
+      },
+      {
+        "key": "source",
+        "label": "Origen",
+        "type": "text",
+        "required": false,
+        "readonly": true
+      },
+      {
+        "key": "notes",
+        "label": "Observaciones",
+        "type": "textarea",
+        "required": false,
+        "readonly": false
+      }
+    ],
+    "actions": [
+      "pay",
+      "credit",
+      "reschedule"
+    ],
+    "readonly": true,
+    "description": ""
+  },
+  {
+    "key": "payables",
+    "title": "Cuentas por pagar",
+    "module": "accounting",
+    "fields": [
+      {
+        "key": "code",
+        "label": "Código",
+        "type": "text",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "party",
+        "label": "Cliente / beneficiario",
+        "type": "text",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "document",
+        "label": "RUC o DNI",
+        "type": "text",
+        "required": false,
+        "readonly": false
+      },
+      {
+        "key": "date",
+        "label": "Emisión",
+        "type": "date",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "due_date",
+        "label": "Vencimiento",
+        "type": "date",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "total",
+        "label": "Importe total",
+        "type": "money",
+        "required": true,
+        "readonly": false,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "paid",
+        "label": "Pagado",
+        "type": "money",
+        "required": true,
+        "readonly": true,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "credit",
+        "label": "Nota de crédito",
+        "type": "money",
+        "required": true,
+        "readonly": true,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "status",
+        "label": "Estado",
+        "type": "select",
+        "required": true,
+        "readonly": true,
+        "default": "PENDIENTE",
+        "options": [
+          "PENDIENTE",
+          "PARCIAL",
+          "PAGADA",
+          "ANULADA"
+        ]
+      },
+      {
+        "key": "source",
+        "label": "Origen",
+        "type": "text",
+        "required": false,
+        "readonly": true
+      },
+      {
+        "key": "notes",
+        "label": "Observaciones",
+        "type": "textarea",
+        "required": false,
+        "readonly": false
+      }
+    ],
+    "actions": [
+      "pay",
+      "credit",
+      "reschedule"
+    ],
+    "readonly": true,
+    "description": ""
+  },
+  {
+    "key": "cash_accounts",
+    "title": "Cuentas de tesorería",
+    "module": "accounting",
+    "fields": [
+      {
+        "key": "name",
+        "label": "Nombre",
+        "type": "text",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "kind",
+        "label": "Tipo",
+        "type": "select",
+        "required": true,
+        "readonly": false,
+        "default": "EFECTIVO",
+        "options": [
+          "EFECTIVO",
+          "BANCO",
+          "YAPE",
+          "TARJETA"
+        ]
+      },
+      {
+        "key": "balance",
+        "label": "Saldo",
+        "type": "money",
+        "required": true,
+        "readonly": true,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "status",
+        "label": "Estado",
+        "type": "select",
+        "required": true,
+        "readonly": false,
+        "default": "ACTIVO",
+        "options": [
+          "ACTIVO",
+          "INACTIVO"
+        ]
+      }
+    ],
+    "actions": [],
+    "readonly": false,
+    "description": ""
+  },
+  {
+    "key": "treasury",
+    "title": "Tesorería",
+    "module": "accounting",
+    "fields": [
+      {
+        "key": "cash_account_id",
+        "label": "Cuenta",
+        "type": "reference",
+        "required": true,
+        "readonly": false,
+        "ref": "cash_accounts"
+      },
+      {
+        "key": "kind",
+        "label": "Movimiento",
+        "type": "select",
+        "required": true,
+        "readonly": false,
+        "default": "INGRESO",
+        "options": [
+          "INGRESO",
+          "EGRESO"
+        ]
+      },
+      {
+        "key": "amount",
+        "label": "Monto",
+        "type": "money",
+        "required": true,
+        "readonly": false,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "date",
+        "label": "Fecha",
+        "type": "date",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "description",
+        "label": "Descripción",
+        "type": "text",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "reference",
+        "label": "Referencia",
+        "type": "text",
+        "required": false,
+        "readonly": false
+      },
+      {
+        "key": "file_id",
+        "label": "Documento adjunto",
+        "type": "file",
+        "required": false,
+        "readonly": false
+      }
+    ],
+    "actions": [],
+    "readonly": true,
+    "description": ""
+  },
+  {
+    "key": "budgets",
+    "title": "Presupuestos",
+    "module": "finance",
+    "fields": [
+      {
+        "key": "code",
+        "label": "Código",
+        "type": "text",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "area",
+        "label": "Área",
+        "type": "text",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "category",
+        "label": "Categoría",
+        "type": "text",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "start_date",
+        "label": "Inicio",
+        "type": "date",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "end_date",
+        "label": "Fin",
+        "type": "date",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "amount",
+        "label": "Asignado",
+        "type": "money",
+        "required": true,
+        "readonly": false,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "executed",
+        "label": "Ejecutado",
+        "type": "money",
+        "required": true,
+        "readonly": true,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "manager",
+        "label": "Responsable",
+        "type": "text",
+        "required": false,
+        "readonly": false
+      }
+    ],
+    "actions": [],
+    "readonly": false,
+    "description": ""
+  },
+  {
+    "key": "assets",
+    "title": "Activos fijos",
+    "module": "finance",
+    "fields": [
+      {
+        "key": "code",
+        "label": "Código",
+        "type": "text",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "name",
+        "label": "Nombre",
+        "type": "text",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "category",
+        "label": "Categoría",
+        "type": "text",
+        "required": false,
+        "readonly": false
+      },
+      {
+        "key": "date",
+        "label": "Compra",
+        "type": "date",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "amount",
+        "label": "Costo de adquisición",
+        "type": "money",
+        "required": true,
+        "readonly": false,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "useful_months",
+        "label": "Vida útil en meses",
+        "type": "number",
+        "required": true,
+        "readonly": false,
+        "default": 60,
+        "min": 0
+      },
+      {
+        "key": "residual",
+        "label": "Valor residual",
+        "type": "money",
+        "required": true,
+        "readonly": false,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "depreciated",
+        "label": "Depreciación acumulada",
+        "type": "money",
+        "required": true,
+        "readonly": true,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "manager",
+        "label": "Responsable",
+        "type": "text",
+        "required": false,
+        "readonly": false
+      },
+      {
+        "key": "warranty_years",
+        "label": "Garantía en años",
+        "type": "number",
+        "required": true,
+        "readonly": false,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "partner_id",
+        "label": "Proveedor",
+        "type": "reference",
+        "required": true,
+        "readonly": false,
+        "ref": "partners"
+      },
+      {
+        "key": "budget_id",
+        "label": "Presupuesto",
+        "type": "reference",
+        "required": false,
+        "readonly": false,
+        "ref": "budgets"
+      },
+      {
+        "key": "file_id",
+        "label": "Documento adjunto",
+        "type": "file",
+        "required": false,
+        "readonly": false
+      },
+      {
+        "key": "status",
+        "label": "Estado",
+        "type": "select",
+        "required": true,
+        "readonly": true,
+        "default": "ACTIVO",
+        "options": [
+          "ACTIVO",
+          "BAJA"
+        ]
+      }
+    ],
+    "actions": [
+      "depreciate",
+      "retire"
+    ],
+    "readonly": false,
+    "description": ""
+  },
+  {
+    "key": "services",
+    "title": "Servicios y mantenimiento",
+    "module": "finance",
+    "fields": [
+      {
+        "key": "code",
+        "label": "Código",
+        "type": "text",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "name",
+        "label": "Nombre",
+        "type": "text",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "partner_id",
+        "label": "Proveedor",
+        "type": "reference",
+        "required": true,
+        "readonly": false,
+        "ref": "partners"
+      },
+      {
+        "key": "date",
+        "label": "Servicio",
+        "type": "date",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "due_date",
+        "label": "Vencimiento",
+        "type": "date",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "amount",
+        "label": "Monto",
+        "type": "money",
+        "required": true,
+        "readonly": false,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "budget_id",
+        "label": "Presupuesto",
+        "type": "reference",
+        "required": false,
+        "readonly": false,
+        "ref": "budgets"
+      },
+      {
+        "key": "next_date",
+        "label": "Próximo mantenimiento",
+        "type": "date",
+        "required": false,
+        "readonly": false
+      },
+      {
+        "key": "file_id",
+        "label": "Documento adjunto",
+        "type": "file",
+        "required": false,
+        "readonly": false
+      },
+      {
+        "key": "notes",
+        "label": "Observaciones",
+        "type": "textarea",
+        "required": false,
+        "readonly": false
+      }
+    ],
+    "actions": [],
+    "readonly": true,
+    "description": ""
+  },
+  {
+    "key": "obligations",
+    "title": "Obligaciones financieras",
+    "module": "finance",
+    "fields": [
+      {
+        "key": "code",
+        "label": "Código",
+        "type": "text",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "name",
+        "label": "Nombre",
+        "type": "text",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "party",
+        "label": "Entidad",
+        "type": "text",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "date",
+        "label": "Registro",
+        "type": "date",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "due_date",
+        "label": "Vencimiento",
+        "type": "date",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "amount",
+        "label": "Monto a pagar",
+        "type": "money",
+        "required": true,
+        "readonly": false,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "budget_id",
+        "label": "Presupuesto",
+        "type": "reference",
+        "required": false,
+        "readonly": false,
+        "ref": "budgets"
+      },
+      {
+        "key": "file_id",
+        "label": "Documento adjunto",
+        "type": "file",
+        "required": false,
+        "readonly": false
+      },
+      {
+        "key": "notes",
+        "label": "Observaciones",
+        "type": "textarea",
+        "required": false,
+        "readonly": false
+      }
+    ],
+    "actions": [],
+    "readonly": true,
+    "description": ""
+  },
+  {
+    "key": "employees",
+    "title": "Expedientes",
+    "module": "hr",
+    "fields": [
+      {
+        "key": "code",
+        "label": "Código",
+        "type": "text",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "name",
+        "label": "Nombre",
+        "type": "text",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "last_name",
+        "label": "Apellidos",
+        "type": "text",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "document",
+        "label": "DNI",
+        "type": "text",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "birth_date",
+        "label": "Nacimiento",
+        "type": "date",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "address",
+        "label": "Dirección",
+        "type": "text",
+        "required": false,
+        "readonly": false
+      },
+      {
+        "key": "phone",
+        "label": "Teléfono",
+        "type": "text",
+        "required": false,
+        "readonly": false
+      },
+      {
+        "key": "marital_status",
+        "label": "Estado civil",
+        "type": "select",
+        "required": true,
+        "readonly": false,
+        "default": "SOLTERO",
+        "options": [
+          "SOLTERO",
+          "CASADO",
+          "CONVIVIENTE",
+          "DIVORCIADO",
+          "VIUDO"
+        ]
+      },
+      {
+        "key": "insurance",
+        "label": "Seguro",
+        "type": "text",
+        "required": false,
+        "readonly": false
+      },
+      {
+        "key": "file_id",
+        "label": "Documento adjunto",
+        "type": "file",
+        "required": false,
+        "readonly": false
+      },
+      {
+        "key": "status",
+        "label": "Estado",
+        "type": "select",
+        "required": true,
+        "readonly": false,
+        "default": "ACTIVO",
+        "options": [
+          "ACTIVO",
+          "INACTIVO"
+        ]
+      }
+    ],
+    "actions": [],
+    "readonly": false,
+    "description": ""
+  },
+  {
+    "key": "dependents",
+    "title": "Familiares",
+    "module": "hr",
+    "fields": [
+      {
+        "key": "employee_id",
+        "label": "Empleado",
+        "type": "reference",
+        "required": true,
+        "readonly": false,
+        "ref": "employees"
+      },
+      {
+        "key": "kind",
+        "label": "Parentesco",
+        "type": "select",
+        "required": true,
+        "readonly": false,
+        "default": "HIJO",
+        "options": [
+          "HIJO",
+          "PAREJA"
+        ]
+      },
+      {
+        "key": "name",
+        "label": "Nombre",
+        "type": "text",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "document",
+        "label": "DNI",
+        "type": "text",
+        "required": false,
+        "readonly": false
+      },
+      {
+        "key": "birth_date",
+        "label": "Nacimiento",
+        "type": "date",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "address",
+        "label": "Dirección",
+        "type": "text",
+        "required": false,
+        "readonly": false
+      },
+      {
+        "key": "phone",
+        "label": "Teléfono",
+        "type": "text",
+        "required": false,
+        "readonly": false
+      },
+      {
+        "key": "file_id",
+        "label": "Documento adjunto",
+        "type": "file",
+        "required": false,
+        "readonly": false
+      }
+    ],
+    "actions": [],
+    "readonly": false,
+    "description": ""
+  },
+  {
+    "key": "contracts",
+    "title": "Contratos",
+    "module": "hr",
+    "fields": [
+      {
+        "key": "employee_id",
+        "label": "Empleado",
+        "type": "reference",
+        "required": true,
+        "readonly": false,
+        "ref": "employees"
+      },
+      {
+        "key": "start_date",
+        "label": "Inicio",
+        "type": "date",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "end_date",
+        "label": "Fin",
+        "type": "date",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "position",
+        "label": "Cargo",
+        "type": "text",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "regime",
+        "label": "Régimen",
+        "type": "select",
+        "required": true,
+        "readonly": false,
+        "default": "PEQUENA_EMPRESA",
+        "options": [
+          "PEQUENA_EMPRESA",
+          "GENERAL",
+          "MICROEMPRESA"
+        ]
+      },
+      {
+        "key": "salary",
+        "label": "Sueldo base",
+        "type": "money",
+        "required": true,
+        "readonly": false,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "vacation_days",
+        "label": "Vacaciones anuales",
+        "type": "number",
+        "required": true,
+        "readonly": false,
+        "default": 15,
+        "min": 0
+      },
+      {
+        "key": "bonus_factor",
+        "label": "Factor gratificación",
+        "type": "money",
+        "required": true,
+        "readonly": false,
+        "default": 0.5,
+        "min": 0
+      },
+      {
+        "key": "cts_factor",
+        "label": "Factor CTS anual",
+        "type": "money",
+        "required": true,
+        "readonly": false,
+        "default": 0.5,
+        "min": 0
+      },
+      {
+        "key": "pension_rate",
+        "label": "Pensión %",
+        "type": "money",
+        "required": true,
+        "readonly": false,
+        "default": 13,
+        "min": 0
+      },
+      {
+        "key": "health_rate",
+        "label": "Aporte salud %",
+        "type": "money",
+        "required": true,
+        "readonly": false,
+        "default": 9,
+        "min": 0
+      },
+      {
+        "key": "status",
+        "label": "Estado",
+        "type": "select",
+        "required": true,
+        "readonly": false,
+        "default": "ACTIVO",
+        "options": [
+          "ACTIVO",
+          "FINALIZADO"
+        ]
+      }
+    ],
+    "actions": [],
+    "readonly": false,
+    "description": "Los parámetros del régimen deben ser revisados por RRHH y el contador antes de generar pagos."
+  },
+  {
+    "key": "attendance",
+    "title": "Asistencia",
+    "module": "hr",
+    "fields": [
+      {
+        "key": "employee_id",
+        "label": "Empleado",
+        "type": "reference",
+        "required": true,
+        "readonly": false,
+        "ref": "employees"
+      },
+      {
+        "key": "date",
+        "label": "Fecha",
+        "type": "date",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "check_in",
+        "label": "Ingreso",
+        "type": "datetime",
+        "required": false,
+        "readonly": false
+      },
+      {
+        "key": "check_out",
+        "label": "Salida",
+        "type": "datetime",
+        "required": false,
+        "readonly": false
+      },
+      {
+        "key": "late_minutes",
+        "label": "Minutos de tardanza",
+        "type": "number",
+        "required": true,
+        "readonly": false,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "extra_hours",
+        "label": "Horas extras",
+        "type": "number",
+        "required": true,
+        "readonly": false,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "status",
+        "label": "Registro",
+        "type": "select",
+        "required": true,
+        "readonly": false,
+        "default": "PRESENTE",
+        "options": [
+          "PRESENTE",
+          "FALTA",
+          "JUSTIFICADO"
+        ]
+      },
+      {
+        "key": "notes",
+        "label": "Observaciones",
+        "type": "textarea",
+        "required": false,
+        "readonly": false
+      }
+    ],
+    "actions": [],
+    "readonly": false,
+    "description": ""
+  },
+  {
+    "key": "leaves",
+    "title": "Ausencias y vacaciones",
+    "module": "hr",
+    "fields": [
+      {
+        "key": "employee_id",
+        "label": "Empleado",
+        "type": "reference",
+        "required": true,
+        "readonly": false,
+        "ref": "employees"
+      },
+      {
+        "key": "kind",
+        "label": "Tipo",
+        "type": "select",
+        "required": true,
+        "readonly": false,
+        "default": "VACACIONES",
+        "options": [
+          "VACACIONES",
+          "JUSTIFICADA",
+          "FAMILIAR"
+        ]
+      },
+      {
+        "key": "start_date",
+        "label": "Inicio",
+        "type": "date",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "end_date",
+        "label": "Fin",
+        "type": "date",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "days",
+        "label": "Días",
+        "type": "number",
+        "required": true,
+        "readonly": true,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "compensable_hours",
+        "label": "Horas a compensar",
+        "type": "number",
+        "required": true,
+        "readonly": false,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "file_id",
+        "label": "Documento adjunto",
+        "type": "file",
+        "required": false,
+        "readonly": false
+      },
+      {
+        "key": "notes",
+        "label": "Observaciones",
+        "type": "textarea",
+        "required": false,
+        "readonly": false
+      },
+      {
+        "key": "status",
+        "label": "Estado",
+        "type": "select",
+        "required": true,
+        "readonly": true,
+        "default": "PENDIENTE",
+        "options": [
+          "PENDIENTE",
+          "APROBADA",
+          "RECHAZADA"
+        ]
+      }
+    ],
+    "actions": [
+      "approve",
+      "reject"
+    ],
+    "readonly": false,
+    "description": ""
+  },
+  {
+    "key": "payrolls",
+    "title": "Planillas",
+    "module": "hr",
+    "fields": [
+      {
+        "key": "employee_id",
+        "label": "Empleado",
+        "type": "reference",
+        "required": true,
+        "readonly": false,
+        "ref": "employees"
+      },
+      {
+        "key": "period",
+        "label": "Período AAAA-MM",
+        "type": "text",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "salary",
+        "label": "Sueldo base",
+        "type": "money",
+        "required": true,
+        "readonly": true,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "overtime",
+        "label": "Horas extra S/",
+        "type": "money",
+        "required": true,
+        "readonly": false,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "family_allowance",
+        "label": "Asignación familiar",
+        "type": "money",
+        "required": true,
+        "readonly": false,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "other_bonus",
+        "label": "Otros ingresos",
+        "type": "money",
+        "required": true,
+        "readonly": false,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "lateness",
+        "label": "Descuento tardanza",
+        "type": "money",
+        "required": true,
+        "readonly": false,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "income_tax",
+        "label": "Renta quinta",
+        "type": "money",
+        "required": true,
+        "readonly": false,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "pension",
+        "label": "Pensión",
+        "type": "money",
+        "required": true,
+        "readonly": true,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "advances",
+        "label": "Adelantos",
+        "type": "money",
+        "required": true,
+        "readonly": true,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "loans",
+        "label": "Cuotas préstamos",
+        "type": "money",
+        "required": true,
+        "readonly": true,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "net",
+        "label": "Neto a pagar",
+        "type": "money",
+        "required": true,
+        "readonly": true,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "employer_health",
+        "label": "Aporte empleador",
+        "type": "money",
+        "required": true,
+        "readonly": true,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "status",
+        "label": "Estado",
+        "type": "select",
+        "required": true,
+        "readonly": true,
+        "default": "BORRADOR",
+        "options": [
+          "BORRADOR",
+          "APROBADA"
+        ]
+      }
+    ],
+    "actions": [
+      "approve"
+    ],
+    "readonly": true,
+    "description": ""
+  },
+  {
+    "key": "fees",
+    "title": "Honorarios",
+    "module": "hr",
+    "fields": [
+      {
+        "key": "code",
+        "label": "Código",
+        "type": "text",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "party",
+        "label": "Prestador",
+        "type": "text",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "document",
+        "label": "RUC",
+        "type": "text",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "start_date",
+        "label": "Inicio",
+        "type": "date",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "end_date",
+        "label": "Fin",
+        "type": "date",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "amount",
+        "label": "Importe bruto",
+        "type": "money",
+        "required": true,
+        "readonly": false,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "waiver",
+        "label": "Suspensión de retenciones",
+        "type": "select",
+        "required": true,
+        "readonly": false,
+        "default": "NO",
+        "options": [
+          "NO",
+          "SI"
+        ]
+      },
+      {
+        "key": "withheld",
+        "label": "Retención",
+        "type": "money",
+        "required": true,
+        "readonly": true,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "net",
+        "label": "Neto",
+        "type": "money",
+        "required": true,
+        "readonly": true,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "file_id",
+        "label": "Documento adjunto",
+        "type": "file",
+        "required": false,
+        "readonly": false
+      },
+      {
+        "key": "status",
+        "label": "Estado",
+        "type": "select",
+        "required": true,
+        "readonly": true,
+        "default": "BORRADOR",
+        "options": [
+          "BORRADOR",
+          "APROBADO",
+          "CANCELADO"
+        ]
+      },
+      {
+        "key": "notes",
+        "label": "Observaciones",
+        "type": "textarea",
+        "required": false,
+        "readonly": false
+      }
+    ],
+    "actions": [
+      "approve",
+      "cancel"
+    ],
+    "readonly": true,
+    "description": ""
+  },
+  {
+    "key": "benefits",
+    "title": "Beneficios sociales",
+    "module": "hr",
+    "fields": [
+      {
+        "key": "employee_id",
+        "label": "Empleado",
+        "type": "reference",
+        "required": true,
+        "readonly": false,
+        "ref": "employees"
+      },
+      {
+        "key": "period",
+        "label": "Período AAAA-MM",
+        "type": "text",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "kind",
+        "label": "Beneficio",
+        "type": "select",
+        "required": true,
+        "readonly": false,
+        "default": "CTS",
+        "options": [
+          "CTS",
+          "GRATIFICACION",
+          "VACACIONES"
+        ]
+      },
+      {
+        "key": "months",
+        "label": "Meses computables",
+        "type": "number",
+        "required": true,
+        "readonly": false,
+        "default": 6,
+        "min": 0
+      },
+      {
+        "key": "days",
+        "label": "Días de vacaciones",
+        "type": "number",
+        "required": true,
+        "readonly": false,
+        "default": 15,
+        "min": 0
+      },
+      {
+        "key": "amount",
+        "label": "Cálculo estimado",
+        "type": "money",
+        "required": true,
+        "readonly": true,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "status",
+        "label": "Estado",
+        "type": "select",
+        "required": true,
+        "readonly": true,
+        "default": "BORRADOR",
+        "options": [
+          "BORRADOR",
+          "APROBADO"
+        ]
+      },
+      {
+        "key": "notes",
+        "label": "Observaciones",
+        "type": "textarea",
+        "required": false,
+        "readonly": false
+      }
+    ],
+    "actions": [
+      "approve"
+    ],
+    "readonly": true,
+    "description": ""
+  },
+  {
+    "key": "loans",
+    "title": "Préstamos",
+    "module": "hr",
+    "fields": [
+      {
+        "key": "employee_id",
+        "label": "Empleado",
+        "type": "reference",
+        "required": true,
+        "readonly": false,
+        "ref": "employees"
+      },
+      {
+        "key": "date",
+        "label": "Entrega",
+        "type": "date",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "amount",
+        "label": "Principal",
+        "type": "money",
+        "required": true,
+        "readonly": false,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "months",
+        "label": "Cuotas mensuales",
+        "type": "number",
+        "required": true,
+        "readonly": false,
+        "default": 6,
+        "min": 0
+      },
+      {
+        "key": "annual_rate",
+        "label": "TCEA %",
+        "type": "money",
+        "required": true,
+        "readonly": true,
+        "default": 6,
+        "min": 0
+      },
+      {
+        "key": "installment",
+        "label": "Cuota mensual",
+        "type": "money",
+        "required": true,
+        "readonly": true,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "balance",
+        "label": "Saldo pendiente",
+        "type": "money",
+        "required": true,
+        "readonly": true,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "first_period",
+        "label": "Primera cuota AAAA-MM",
+        "type": "text",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "status",
+        "label": "Estado",
+        "type": "select",
+        "required": true,
+        "readonly": true,
+        "default": "PENDIENTE",
+        "options": [
+          "PENDIENTE",
+          "ACTIVO",
+          "PAGADO"
+        ]
+      },
+      {
+        "key": "file_id",
+        "label": "Documento adjunto",
+        "type": "file",
+        "required": false,
+        "readonly": false
+      },
+      {
+        "key": "notes",
+        "label": "Observaciones",
+        "type": "textarea",
+        "required": false,
+        "readonly": false
+      }
+    ],
+    "actions": [
+      "settle"
+    ],
+    "readonly": true,
+    "description": ""
+  },
+  {
+    "key": "advances",
+    "title": "Adelantos de sueldo",
+    "module": "hr",
+    "fields": [
+      {
+        "key": "employee_id",
+        "label": "Empleado",
+        "type": "reference",
+        "required": true,
+        "readonly": false,
+        "ref": "employees"
+      },
+      {
+        "key": "date",
+        "label": "Solicitud",
+        "type": "date",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "period",
+        "label": "Mes descuento AAAA-MM",
+        "type": "text",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "amount",
+        "label": "Monto",
+        "type": "money",
+        "required": true,
+        "readonly": false,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "status",
+        "label": "Estado",
+        "type": "select",
+        "required": true,
+        "readonly": true,
+        "default": "PENDIENTE",
+        "options": [
+          "PENDIENTE",
+          "ENTREGADO",
+          "DESCONTADO"
+        ]
+      },
+      {
+        "key": "file_id",
+        "label": "Documento adjunto",
+        "type": "file",
+        "required": false,
+        "readonly": false
+      },
+      {
+        "key": "notes",
+        "label": "Observaciones",
+        "type": "textarea",
+        "required": false,
+        "readonly": false
+      }
+    ],
+    "actions": [],
+    "readonly": true,
+    "description": ""
+  },
+  {
+    "key": "settlements",
+    "title": "Liquidaciones",
+    "module": "hr",
+    "fields": [
+      {
+        "key": "employee_id",
+        "label": "Empleado",
+        "type": "reference",
+        "required": true,
+        "readonly": false,
+        "ref": "employees"
+      },
+      {
+        "key": "date",
+        "label": "Cese",
+        "type": "date",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "reason",
+        "label": "Motivo",
+        "type": "select",
+        "required": true,
+        "readonly": false,
+        "default": "RENUNCIA",
+        "options": [
+          "RENUNCIA",
+          "DESPIDO",
+          "FIN_CONTRATO"
+        ]
+      },
+      {
+        "key": "vacation_days",
+        "label": "Vacaciones no gozadas",
+        "type": "number",
+        "required": true,
+        "readonly": false,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "cts_months",
+        "label": "Meses CTS pendientes",
+        "type": "number",
+        "required": true,
+        "readonly": false,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "bonus_months",
+        "label": "Meses gratificación pendientes",
+        "type": "number",
+        "required": true,
+        "readonly": false,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "other",
+        "label": "Otros conceptos revisados",
+        "type": "money",
+        "required": true,
+        "readonly": false,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "amount",
+        "label": "Cálculo estimado",
+        "type": "money",
+        "required": true,
+        "readonly": true,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "status",
+        "label": "Estado",
+        "type": "select",
+        "required": true,
+        "readonly": true,
+        "default": "BORRADOR",
+        "options": [
+          "BORRADOR",
+          "APROBADA"
+        ]
+      },
+      {
+        "key": "file_id",
+        "label": "Documento adjunto",
+        "type": "file",
+        "required": false,
+        "readonly": false
+      },
+      {
+        "key": "notes",
+        "label": "Observaciones",
+        "type": "textarea",
+        "required": false,
+        "readonly": false
+      }
+    ],
+    "actions": [
+      "approve"
+    ],
+    "readonly": true,
+    "description": ""
+  },
+  {
+    "key": "areas",
+    "title": "Áreas del restaurante",
+    "module": "sales",
+    "fields": [
+      {
+        "key": "name",
+        "label": "Nombre",
+        "type": "text",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "max_tables",
+        "label": "Máximo mesas",
+        "type": "number",
+        "required": true,
+        "readonly": false,
+        "default": 20,
+        "min": 0
+      }
+    ],
+    "actions": [],
+    "readonly": false,
+    "description": ""
+  },
+  {
+    "key": "dining_tables",
+    "title": "Mesas",
+    "module": "sales",
+    "fields": [
+      {
+        "key": "name",
+        "label": "Nombre",
+        "type": "text",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "area_id",
+        "label": "Área",
+        "type": "reference",
+        "required": true,
+        "readonly": false,
+        "ref": "areas"
+      },
+      {
+        "key": "capacity",
+        "label": "Capacidad",
+        "type": "number",
+        "required": true,
+        "readonly": false,
+        "default": 4,
+        "min": 0
+      },
+      {
+        "key": "status",
+        "label": "Estado",
+        "type": "select",
+        "required": true,
+        "readonly": true,
+        "default": "LIBRE",
+        "options": [
+          "LIBRE",
+          "OCUPADA",
+          "PAGAR",
+          "LIMPIAR"
+        ]
+      }
+    ],
+    "actions": [
+      "clean"
+    ],
+    "readonly": false,
+    "description": ""
+  },
+  {
+    "key": "dishes",
+    "title": "Platillos y carta",
+    "module": "sales",
+    "fields": [
+      {
+        "key": "code",
+        "label": "Código",
+        "type": "text",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "name",
+        "label": "Nombre",
+        "type": "text",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "category",
+        "label": "Categoría",
+        "type": "text",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "price",
+        "label": "Precio final",
+        "type": "money",
+        "required": true,
+        "readonly": false,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "tax_type",
+        "label": "Afectación",
+        "type": "select",
+        "required": true,
+        "readonly": false,
+        "default": "GRAVADO",
+        "options": [
+          "GRAVADO",
+          "EXONERADO",
+          "INAFECTO"
+        ]
+      },
+      {
+        "key": "tax_rate",
+        "label": "IGV %",
+        "type": "money",
+        "required": true,
+        "readonly": false,
+        "default": 18,
+        "min": 0
+      },
+      {
+        "key": "description",
+        "label": "Descripción",
+        "type": "textarea",
+        "required": false,
+        "readonly": false
+      },
+      {
+        "key": "image_id",
+        "label": "Foto del plato",
+        "type": "file",
+        "required": false,
+        "readonly": false
+      },
+      {
+        "key": "status",
+        "label": "Estado",
+        "type": "select",
+        "required": true,
+        "readonly": false,
+        "default": "ACTIVO",
+        "options": [
+          "ACTIVO",
+          "INACTIVO"
+        ]
+      }
+    ],
+    "actions": [
+      "recipe"
+    ],
+    "readonly": false,
+    "description": ""
+  },
+  {
+    "key": "discounts",
+    "title": "Códigos de descuento",
+    "module": "sales",
+    "fields": [
+      {
+        "key": "code",
+        "label": "Código",
+        "type": "text",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "percent",
+        "label": "Descuento %",
+        "type": "money",
+        "required": true,
+        "readonly": false,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "dish_id",
+        "label": "Platillo específico",
+        "type": "reference",
+        "required": false,
+        "readonly": false,
+        "ref": "dishes"
+      },
+      {
+        "key": "start_date",
+        "label": "Desde",
+        "type": "date",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "end_date",
+        "label": "Hasta",
+        "type": "date",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "status",
+        "label": "Estado",
+        "type": "select",
+        "required": true,
+        "readonly": false,
+        "default": "ACTIVO",
+        "options": [
+          "ACTIVO",
+          "INACTIVO"
+        ]
+      }
+    ],
+    "actions": [],
+    "readonly": false,
+    "description": ""
+  },
+  {
+    "key": "quotes",
+    "title": "Cotizaciones para eventos",
+    "module": "sales",
+    "fields": [
+      {
+        "key": "customer",
+        "label": "Cliente",
+        "type": "text",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "document",
+        "label": "RUC o DNI",
+        "type": "text",
+        "required": false,
+        "readonly": false
+      },
+      {
+        "key": "date",
+        "label": "Evento",
+        "type": "date",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "rental",
+        "label": "Alquiler local",
+        "type": "money",
+        "required": true,
+        "readonly": false,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "discount",
+        "label": "Descuento platos %",
+        "type": "money",
+        "required": true,
+        "readonly": false,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "total",
+        "label": "Total",
+        "type": "money",
+        "required": true,
+        "readonly": true,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "advance",
+        "label": "Adelanto",
+        "type": "money",
+        "required": true,
+        "readonly": true,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "status",
+        "label": "Estado",
+        "type": "select",
+        "required": true,
+        "readonly": true,
+        "default": "COTIZAR",
+        "options": [
+          "COTIZAR",
+          "ACEPTADA",
+          "RECHAZADA",
+          "CONVERTIDA",
+          "PAGADA",
+          "ANULADA"
+        ]
+      },
+      {
+        "key": "notes",
+        "label": "Observaciones",
+        "type": "textarea",
+        "required": false,
+        "readonly": false
+      }
+    ],
+    "actions": [
+      "accept",
+      "reject",
+      "convert",
+      "deposit",
+      "cancel"
+    ],
+    "readonly": true,
+    "description": ""
+  },
+  {
+    "key": "orders",
+    "title": "Pedidos",
+    "module": "sales",
+    "fields": [
+      {
+        "key": "table_id",
+        "label": "Mesa",
+        "type": "reference",
+        "required": false,
+        "readonly": false,
+        "ref": "dining_tables"
+      },
+      {
+        "key": "customer",
+        "label": "Cliente",
+        "type": "text",
+        "required": false,
+        "readonly": false
+      },
+      {
+        "key": "quote_id",
+        "label": "Cotización",
+        "type": "reference",
+        "required": false,
+        "readonly": false,
+        "ref": "quotes"
+      },
+      {
+        "key": "warehouse_id",
+        "label": "Almacén de insumos",
+        "type": "reference",
+        "required": true,
+        "readonly": false,
+        "ref": "warehouses"
+      },
+      {
+        "key": "date",
+        "label": "Fecha",
+        "type": "date",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "status",
+        "label": "Estado",
+        "type": "select",
+        "required": true,
+        "readonly": true,
+        "default": "ABIERTO",
+        "options": [
+          "ABIERTO",
+          "PAGAR",
+          "PAGADO",
+          "ANULADO"
+        ]
+      },
+      {
+        "key": "total",
+        "label": "Total",
+        "type": "money",
+        "required": true,
+        "readonly": true,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "discount",
+        "label": "Descuento S/",
+        "type": "money",
+        "required": true,
+        "readonly": true,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "rental",
+        "label": "Alquiler",
+        "type": "money",
+        "required": true,
+        "readonly": true,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "discount_code",
+        "label": "Código descuento",
+        "type": "text",
+        "required": false,
+        "readonly": false
+      },
+      {
+        "key": "notes",
+        "label": "Observaciones",
+        "type": "textarea",
+        "required": false,
+        "readonly": false
+      }
+    ],
+    "actions": [
+      "bill",
+      "checkout",
+      "cancel"
+    ],
+    "readonly": true,
+    "description": ""
+  },
+  {
+    "key": "invoices",
+    "title": "Comprobantes internos",
+    "module": "sales",
+    "fields": [
+      {
+        "key": "number",
+        "label": "Número",
+        "type": "text",
+        "required": false,
+        "readonly": true
+      },
+      {
+        "key": "order_id",
+        "label": "Pedido",
+        "type": "reference",
+        "required": true,
+        "readonly": false,
+        "ref": "orders"
+      },
+      {
+        "key": "customer",
+        "label": "Cliente",
+        "type": "text",
+        "required": false,
+        "readonly": false
+      },
+      {
+        "key": "document",
+        "label": "Documento identidad",
+        "type": "text",
+        "required": false,
+        "readonly": false
+      },
+      {
+        "key": "document_type",
+        "label": "Tipo",
+        "type": "select",
+        "required": true,
+        "readonly": false,
+        "default": "BOLETA",
+        "options": [
+          "BOLETA",
+          "FACTURA"
+        ]
+      },
+      {
+        "key": "payment_type",
+        "label": "Condición",
+        "type": "select",
+        "required": true,
+        "readonly": false,
+        "default": "CONTADO",
+        "options": [
+          "CONTADO",
+          "CREDITO"
+        ]
+      },
+      {
+        "key": "date",
+        "label": "Fecha",
+        "type": "date",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "subtotal",
+        "label": "Base",
+        "type": "money",
+        "required": true,
+        "readonly": true,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "tax",
+        "label": "IGV",
+        "type": "money",
+        "required": true,
+        "readonly": true,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "total",
+        "label": "Total",
+        "type": "money",
+        "required": true,
+        "readonly": true,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "status",
+        "label": "Estado",
+        "type": "select",
+        "required": true,
+        "readonly": true,
+        "default": "EMITIDO",
+        "options": [
+          "EMITIDO",
+          "ANULADO"
+        ]
+      },
+      {
+        "key": "cancel_reason",
+        "label": "Motivo anulación",
+        "type": "text",
+        "required": false,
+        "readonly": false
+      }
+    ],
+    "actions": [
+      "void"
+    ],
+    "readonly": true,
+    "description": ""
+  },
+  {
+    "key": "cash_sessions",
+    "title": "Aperturas y cierres",
+    "module": "sales",
+    "fields": [
+      {
+        "key": "cash_account_id",
+        "label": "Caja",
+        "type": "reference",
+        "required": true,
+        "readonly": false,
+        "ref": "cash_accounts"
+      },
+      {
+        "key": "opening",
+        "label": "Fondo inicial",
+        "type": "money",
+        "required": true,
+        "readonly": false,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "expected",
+        "label": "Efectivo esperado",
+        "type": "money",
+        "required": true,
+        "readonly": true,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "counted",
+        "label": "Efectivo contado",
+        "type": "money",
+        "required": true,
+        "readonly": true,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "difference",
+        "label": "Diferencia",
+        "type": "money",
+        "required": true,
+        "readonly": true,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "status",
+        "label": "Estado",
+        "type": "select",
+        "required": true,
+        "readonly": true,
+        "default": "ABIERTA",
+        "options": [
+          "ABIERTA",
+          "CERRADA"
+        ]
+      },
+      {
+        "key": "opened_at",
+        "label": "Apertura",
+        "type": "text",
+        "required": false,
+        "readonly": true
+      },
+      {
+        "key": "closed_at",
+        "label": "Cierre",
+        "type": "text",
+        "required": false,
+        "readonly": true
+      }
+    ],
+    "actions": [
+      "close"
+    ],
+    "readonly": true,
+    "description": ""
+  },
+  {
+    "key": "users",
+    "title": "Usuarios",
+    "module": "admin",
+    "fields": [
+      {
+        "key": "name",
+        "label": "Nombre",
+        "type": "text",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "email",
+        "label": "Correo",
+        "type": "email",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "password",
+        "label": "Contraseña nueva",
+        "type": "password",
+        "required": false,
+        "readonly": false
+      },
+      {
+        "key": "role",
+        "label": "Rol",
+        "type": "select",
+        "required": true,
+        "readonly": false,
+        "default": "ADMIN",
+        "options": [
+          "ADMIN",
+          "CONTADOR",
+          "FINANZAS",
+          "ALMACEN",
+          "RRHH",
+          "CAJA",
+          "SALON",
+          "COCINA",
+          "MARKETING"
+        ]
+      },
+      {
+        "key": "status",
+        "label": "Estado",
+        "type": "select",
+        "required": true,
+        "readonly": false,
+        "default": "ACTIVO",
+        "options": [
+          "ACTIVO",
+          "BLOQUEADO",
+          "INACTIVO"
+        ]
+      },
+      {
+        "key": "phone",
+        "label": "Teléfono",
+        "type": "text",
+        "required": false,
+        "readonly": false
+      }
+    ],
+    "actions": [],
+    "readonly": false,
+    "description": ""
+  },
+  {
+    "key": "company",
+    "title": "Datos del negocio",
+    "module": "admin",
+    "fields": [
+      {
+        "key": "name",
+        "label": "Razón social",
+        "type": "text",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "trade_name",
+        "label": "Nombre comercial",
+        "type": "text",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "ruc",
+        "label": "RUC",
+        "type": "text",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "address",
+        "label": "Dirección",
+        "type": "text",
+        "required": true,
+        "readonly": false
+      },
+      {
+        "key": "ubigeo",
+        "label": "Ubigeo",
+        "type": "text",
+        "required": false,
+        "readonly": false
+      },
+      {
+        "key": "department",
+        "label": "Departamento",
+        "type": "text",
+        "required": false,
+        "readonly": false
+      },
+      {
+        "key": "province",
+        "label": "Provincia",
+        "type": "text",
+        "required": false,
+        "readonly": false
+      },
+      {
+        "key": "district",
+        "label": "Distrito",
+        "type": "text",
+        "required": false,
+        "readonly": false
+      },
+      {
+        "key": "phone",
+        "label": "Teléfono",
+        "type": "text",
+        "required": false,
+        "readonly": false
+      },
+      {
+        "key": "logo_id",
+        "label": "Logo",
+        "type": "file",
+        "required": false,
+        "readonly": false
+      },
+      {
+        "key": "id_threshold",
+        "label": "Solicitar DNI desde S/",
+        "type": "money",
+        "required": true,
+        "readonly": false,
+        "default": 700,
+        "min": 0
+      },
+      {
+        "key": "digital_threshold",
+        "label": "Pago digital desde S/",
+        "type": "money",
+        "required": true,
+        "readonly": false,
+        "default": 2000,
+        "min": 0
+      }
+    ],
+    "actions": [],
+    "readonly": false,
+    "description": "Empresa única. Los umbrales son reglas comerciales tomadas de los documentos, no validaciones legales vigentes."
+  },
+  {
+    "key": "audit",
+    "title": "Auditoría",
+    "module": "admin",
+    "fields": [
+      {
+        "key": "username",
+        "label": "Usuario",
+        "type": "text",
+        "required": false,
+        "readonly": false
+      },
+      {
+        "key": "action",
+        "label": "Acción",
+        "type": "text",
+        "required": false,
+        "readonly": false
+      },
+      {
+        "key": "entity",
+        "label": "Entidad",
+        "type": "text",
+        "required": false,
+        "readonly": false
+      },
+      {
+        "key": "entity_id",
+        "label": "Registro",
+        "type": "number",
+        "required": true,
+        "readonly": false,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "key": "detail",
+        "label": "Detalle",
+        "type": "textarea",
+        "required": false,
+        "readonly": false
+      }
+    ],
+    "actions": [],
+    "readonly": true,
+    "description": ""
+  }
+]

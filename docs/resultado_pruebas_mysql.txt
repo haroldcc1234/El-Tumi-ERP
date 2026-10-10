@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: pe.eltumi.erp.WorkflowTest
+-------------------------------------------------------------------------------
+Tests run: 16, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 20.79 s -- in pe.eltumi.erp.WorkflowTest

@@ -1,0 +1,18 @@
+# Copia este archivo como application.properties y ajusta solo tu conexion.
+# Opcion incluida por database/crear_base_mysql.sql:
+spring.datasource.url=jdbc:mysql://localhost:3306/el_tumi?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Lima
+spring.datasource.username=tumi
+spring.datasource.password=tumi_local_2026
+
+# Los datos de prueba se cargan una sola vez, cuando la base esta vacia.
+app.demo=true
+app.admin-email=admin@eltumi.local
+app.admin-password=ElTumi2026!
+
+# Opcional: asistente local. Sin Ollama, funciona el analisis por reglas.
+app.ollama-enabled=false
+app.ollama-url=http://localhost:11434
+app.ollama-model=qwen2.5:3b
+
+# Carpeta de documentos, imagenes y evidencias; no la borres al actualizar.
+app.files=./private-files
