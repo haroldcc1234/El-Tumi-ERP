@@ -1,15 +1,132 @@
 package pe.eltumi.erp;
+
 import org.springframework.stereotype.Service;
 import java.util.*;
 import java.math.*;
 import java.time.*;
 import static pe.eltumi.erp.Store.*;
+
 @Service
 public class Inventory {
- final Store db;final Ledger ledger;public Inventory(Store d,Ledger l){db=d;ledger=l;}
- public BigDecimal move(long product,long warehouse,String kind,BigDecimal quantity,BigDecimal cost,LocalDate date,String ref,String notes){positive(quantity);require(quantity.stripTrailingZeros().scale()<=4,"Usa hasta cuatro decimales en las cantidades");require(List.of("INGRESO","SALIDA","MERMA","AJUSTE_ENTRADA","AJUSTE_SALIDA").contains(kind),"Movimiento inválido");var p=db.lock("products",product);var w=db.get("warehouses",warehouse);require(str(p,"status").equals("ACTIVO")&&str(w,"status").equals("ACTIVO"),"Producto o almacén inactivo");var found=db.rows("SELECT * FROM stocks WHERE product_id=? AND warehouse_id=? FOR UPDATE",product,warehouse);long stock=found.isEmpty()?db.insert("stocks",map("product_id",product,"warehouse_id",warehouse,"quantity",0)):id(found.get(0),"id");BigDecimal old=found.isEmpty()?BigDecimal.ZERO:dec(found.get(0),"quantity");boolean incoming=kind.equals("INGRESO")||kind.equals("AJUSTE_ENTRADA");BigDecimal next=old.add(incoming?quantity:quantity.negate());require(next.signum()>=0,"Stock insuficiente de "+str(p,"name")+". Disponible: "+old.stripTrailingZeros().toPlainString());if(incoming){require(cost.signum()>=0,"Costo inválido");BigDecimal global=db.sum("SELECT COALESCE(SUM(quantity),0) FROM stocks WHERE product_id=?",product);BigDecimal avg=global.multiply(dec(p,"average_cost")).add(quantity.multiply(cost)).divide(global.add(quantity),2,RoundingMode.HALF_UP);db.update("products",product,map("average_cost",avg));}else cost=dec(p,"average_cost");db.update("stocks",stock,map("quantity",next));db.insert("stock_moves",map("product_id",product,"warehouse_id",warehouse,"kind",kind,"quantity",quantity,"unit_cost",money(cost),"date",date,"reference",ref,"notes",notes,"balance",next));return money(quantity.multiply(cost));}
- public String recipe(long dish){return db.json(db.rows("SELECT product_id,quantity,process FROM recipes WHERE dish_id=?",dish));}
- public BigDecimal consume(Map<String,Object> line,long warehouse,String kind,String ref){BigDecimal total=BigDecimal.ZERO;for(var ingredient:db.parseLines(str(line,"recipe_snapshot"))){total=total.add(move(id(ingredient,"product_id"),warehouse,kind,dec(ingredient,"quantity").multiply(dec(line,"quantity")),BigDecimal.ZERO,today(),ref,"Consumo receta de platillo #"+id(line,"dish_id")));}ledger.simple(kind.equals("MERMA")?"659":"691","201",total,kind.equals("MERMA")?"Merma de preparación":"Costo de venta",ref);return total;}
- public long purchase(Map<String,Object>b,Map<String,Object> clean){var partner=db.get("partners",id(clean,"partner_id"));require(!str(partner,"kind").equals("CLIENTE"),"Selecciona un proveedor");long id=db.insert("purchases",clean);BigDecimal total=BigDecimal.ZERO;for(var line:lines(b)){long product=id(line,"product_id");var p=db.get("products",product);var qty=dec(line,"quantity");positive(qty);var cost=dec(line,"unit_cost");require(cost.signum()>=0,"Costo inválido");var rate=str(p,"tax_type").equals("GRAVADO")?dec(p,"tax_rate"):BigDecimal.ZERO;db.insert("purchase_lines",map("purchase_id",id,"product_id",product,"quantity",qty,"received",0,"unit_cost",cost,"tax_rate",rate));var base=money(qty.multiply(cost));total=total.add(base).add(money(base.multiply(rate).divide(new BigDecimal("100"))));}db.update("purchases",id,map("status","BORRADOR","total",money(total)));return id;}
- public void receive(long id,Map<String,Object>b){var purchase=db.lock("purchases",id);require(List.of("ENVIADO","PARCIAL").contains(str(purchase,"status")),"La compra debe estar enviada o recibida parcialmente");require(!str(b,"file_id").isBlank(),"Adjunta la evidencia de recepción");long receipt=db.insert("receipts",map("purchase_id",id,"date",today(),"total",0,"reference",str(b,"reference"),"file_id",str(b,"file_id")));BigDecimal base=BigDecimal.ZERO,tax=BigDecimal.ZERO;Set<Long>seen=new HashSet<>();for(var input:lines(b)){long lineId=id(input,"line_id");require(seen.add(lineId),"Línea duplicada");var line=db.one("SELECT * FROM purchase_lines WHERE id=? AND purchase_id=? FOR UPDATE",lineId,id);var qty=dec(input,"quantity");positive(qty);var received=dec(line,"received").add(qty);require(received.compareTo(dec(line,"quantity"))<=0,"La recepción supera la cantidad pedida");BigDecimal cost=input.containsKey("unit_cost")?dec(input,"unit_cost"):dec(line,"unit_cost");require(cost.signum()>=0,"Costo inválido");db.exec("UPDATE purchase_lines SET received=? WHERE id=?",received,lineId);db.insert("receipt_lines",map("receipt_id",receipt,"purchase_line_id",lineId,"quantity",qty,"unit_cost",cost));move(id(line,"product_id"),id(purchase,"warehouse_id"),"INGRESO",qty,cost,today(),"RECEPCION:"+receipt,"Compra #"+id);var lineBase=money(qty.multiply(cost));base=base.add(lineBase);tax=tax.add(money(lineBase.multiply(dec(line,"tax_rate")).divide(new BigDecimal("100"))));}var total=base.add(tax);positive(total);ledger.budget(id(purchase,"budget_id"),total,today());db.update("receipts",receipt,map("total",total));var supplier=db.get("partners",id(purchase,"partner_id"));ledger.debt("payables",str(supplier,"name"),str(supplier,"document"),total,LocalDate.parse(str(purchase,"due_date")),"receipts",receipt,"Compra "+str(purchase,"code"));ledger.journal("Recepción de compra "+str(purchase,"code"),"receipts:"+receipt,today(),List.of(ledger.entry("201",base,BigDecimal.ZERO),ledger.entry("4011",tax,BigDecimal.ZERO),ledger.entry("421",BigDecimal.ZERO,total)));boolean full=db.count("SELECT COUNT(*) FROM purchase_lines WHERE purchase_id=? AND received<quantity",id)==0;db.update("purchases",id,map("status",full?"ENTREGADO":"PARCIAL"));}
+    final Store db;
+    final Ledger ledger;
+
+    public Inventory(Store d, Ledger l) {
+        db = d;
+        ledger = l;
+    }
+
+    public BigDecimal move(long product, long warehouse, String kind, BigDecimal quantity, BigDecimal cost,
+            LocalDate date, String ref, String notes) {
+        positive(quantity);
+        require(quantity.stripTrailingZeros().scale() <= 4, "Usa hasta cuatro decimales en las cantidades");
+        require(List.of("INGRESO", "SALIDA", "MERMA", "AJUSTE_ENTRADA", "AJUSTE_SALIDA").contains(kind),
+                "Movimiento inválido");
+        var p = db.lock("products", product);
+        var w = db.get("warehouses", warehouse);
+        require(str(p, "status").equals("ACTIVO") && str(w, "status").equals("ACTIVO"), "Producto o almacén inactivo");
+        var found = db.rows("SELECT * FROM stocks WHERE product_id=? AND warehouse_id=? FOR UPDATE", product,
+                warehouse);
+        long stock = found.isEmpty()
+                ? db.insert("stocks", map("product_id", product, "warehouse_id", warehouse, "quantity", 0))
+                : id(found.get(0), "id");
+        BigDecimal old = found.isEmpty() ? BigDecimal.ZERO : dec(found.get(0), "quantity");
+        boolean incoming = kind.equals("INGRESO") || kind.equals("AJUSTE_ENTRADA");
+        BigDecimal next = old.add(incoming ? quantity : quantity.negate());
+        require(next.signum() >= 0, "Stock insuficiente de " + str(p, "name") + ". Disponible: "
+                + old.stripTrailingZeros().toPlainString());
+        if (incoming) {
+            require(cost.signum() >= 0, "Costo inválido");
+            BigDecimal global = db.sum("SELECT COALESCE(SUM(quantity),0) FROM stocks WHERE product_id=?", product);
+            BigDecimal avg = global.multiply(dec(p, "average_cost")).add(quantity.multiply(cost))
+                    .divide(global.add(quantity), 2, RoundingMode.HALF_UP);
+            db.update("products", product, map("average_cost", avg));
+        } else
+            cost = dec(p, "average_cost");
+        db.update("stocks", stock, map("quantity", next));
+        db.insert("stock_moves", map("product_id", product, "warehouse_id", warehouse, "kind", kind, "quantity",
+                quantity, "unit_cost", money(cost), "date", date, "reference", ref, "notes", notes, "balance", next));
+        return money(quantity.multiply(cost));
+    }
+
+    public String recipe(long dish) {
+        return db.json(db.rows("SELECT product_id,quantity,process FROM recipes WHERE dish_id=?", dish));
+    }
+
+    public BigDecimal consume(Map<String, Object> line, long warehouse, String kind, String ref) {
+        BigDecimal total = BigDecimal.ZERO;
+        for (var ingredient : db.parseLines(str(line, "recipe_snapshot"))) {
+            total = total.add(move(id(ingredient, "product_id"), warehouse, kind,
+                    dec(ingredient, "quantity").multiply(dec(line, "quantity")), BigDecimal.ZERO, today(), ref,
+                    "Consumo receta de platillo #" + id(line, "dish_id")));
+        }
+        ledger.simple(kind.equals("MERMA") ? "659" : "691", "201", total,
+                kind.equals("MERMA") ? "Merma de preparación" : "Costo de venta", ref);
+        return total;
+    }
+
+    public long purchase(Map<String, Object> b, Map<String, Object> clean) {
+        var partner = db.get("partners", id(clean, "partner_id"));
+        require(!str(partner, "kind").equals("CLIENTE"), "Selecciona un proveedor");
+        long id = db.insert("purchases", clean);
+        BigDecimal total = BigDecimal.ZERO;
+        for (var line : lines(b)) {
+            long product = id(line, "product_id");
+            var p = db.get("products", product);
+            var qty = dec(line, "quantity");
+            positive(qty);
+            var cost = dec(line, "unit_cost");
+            require(cost.signum() >= 0, "Costo inválido");
+            var rate = str(p, "tax_type").equals("GRAVADO") ? dec(p, "tax_rate") : BigDecimal.ZERO;
+            db.insert("purchase_lines", map("purchase_id", id, "product_id", product, "quantity", qty, "received", 0,
+                    "unit_cost", cost, "tax_rate", rate));
+            var base = money(qty.multiply(cost));
+            total = total.add(base).add(money(base.multiply(rate).divide(new BigDecimal("100"))));
+        }
+        db.update("purchases", id, map("status", "BORRADOR", "total", money(total)));
+        return id;
+    }
+
+    public void receive(long id, Map<String, Object> b) {
+        var purchase = db.lock("purchases", id);
+        require(List.of("ENVIADO", "PARCIAL").contains(str(purchase, "status")),
+                "La compra debe estar enviada o recibida parcialmente");
+        require(!str(b, "file_id").isBlank(), "Adjunta la evidencia de recepción");
+        long receipt = db.insert("receipts", map("purchase_id", id, "date", today(), "total", 0, "reference",
+                str(b, "reference"), "file_id", str(b, "file_id")));
+        BigDecimal base = BigDecimal.ZERO, tax = BigDecimal.ZERO;
+        Set<Long> seen = new HashSet<>();
+        for (var input : lines(b)) {
+            long lineId = id(input, "line_id");
+            require(seen.add(lineId), "Línea duplicada");
+            var line = db.one("SELECT * FROM purchase_lines WHERE id=? AND purchase_id=? FOR UPDATE", lineId, id);
+            var qty = dec(input, "quantity");
+            positive(qty);
+            var received = dec(line, "received").add(qty);
+            require(received.compareTo(dec(line, "quantity")) <= 0, "La recepción supera la cantidad pedida");
+            BigDecimal cost = input.containsKey("unit_cost") ? dec(input, "unit_cost") : dec(line, "unit_cost");
+            require(cost.signum() >= 0, "Costo inválido");
+            db.exec("UPDATE purchase_lines SET received=? WHERE id=?", received, lineId);
+            db.insert("receipt_lines",
+                    map("receipt_id", receipt, "purchase_line_id", lineId, "quantity", qty, "unit_cost", cost));
+            move(id(line, "product_id"), id(purchase, "warehouse_id"), "INGRESO", qty, cost, today(),
+                    "RECEPCION:" + receipt, "Compra #" + id);
+            var lineBase = money(qty.multiply(cost));
+            base = base.add(lineBase);
+            tax = tax.add(money(lineBase.multiply(dec(line, "tax_rate")).divide(new BigDecimal("100"))));
+        }
+        var total = base.add(tax);
+        positive(total);
+        ledger.budget(id(purchase, "budget_id"), total, today());
+        db.update("receipts", receipt, map("total", total));
+        var supplier = db.get("partners", id(purchase, "partner_id"));
+        ledger.debt("payables", str(supplier, "name"), str(supplier, "document"), total,
+                LocalDate.parse(str(purchase, "due_date")), "receipts", receipt, "Compra " + str(purchase, "code"));
+        ledger.journal("Recepción de compra " + str(purchase, "code"), "receipts:" + receipt, today(),
+                List.of(ledger.entry("201", base, BigDecimal.ZERO), ledger.entry("4011", tax, BigDecimal.ZERO),
+                        ledger.entry("421", BigDecimal.ZERO, total)));
+        boolean full = db.count("SELECT COUNT(*) FROM purchase_lines WHERE purchase_id=? AND received<quantity",
+                id) == 0;
+        db.update("purchases", id, map("status", full ? "ENTREGADO" : "PARCIAL"));
+    }
 }

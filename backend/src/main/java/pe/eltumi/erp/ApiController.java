@@ -1,34 +1,223 @@
 package pe.eltumi.erp;
+
 import org.springframework.web.bind.annotation.*;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 import java.math.*;
 import java.time.*;
 import static pe.eltumi.erp.Store.*;
-@RestController @RequestMapping("/api")
+
+@RestController
+@RequestMapping("/api")
 public class ApiController {
- final Store db;final Catalog cat;final Access access;final ErpService erp;final Ledger ledger;
- public ApiController(Store d,Catalog c,Access a,ErpService e,Ledger l){db=d;cat=c;access=a;erp=e;ledger=l;}
- @GetMapping("/catalog")public Object catalog(){return cat.entities.stream().filter(e->access.allowed(str(e,"module"),"read")).toList();}
- @GetMapping("/lookups")public Object lookups(){var keys=new HashSet<String>();for(var e:cat.entities)if(access.allowed(str(e,"module"),"read"))for(var f:cat.fields(str(e,"key")))if(f.containsKey("ref"))keys.add(str(f,"ref"));if(access.allowed("sales","read"))keys.addAll(List.of("warehouses","cash_accounts","dishes","products","dining_tables","areas"));if(access.allowed("hr","read")||access.allowed("finance","read")||access.allowed("accounting","read"))keys.add("cash_accounts");var out=new LinkedHashMap<String,Object>();for(String entity:keys){String label=cat.fields(entity).stream().anyMatch(f->str(f,"key").equals("name"))?"name":cat.fields(entity).stream().anyMatch(f->str(f,"key").equals("code"))?"code":"id";out.put(entity,db.rows("SELECT id,"+label+" AS label FROM "+entity+" ORDER BY id LIMIT 2000"));}return out;}
- @GetMapping("/data/{entity}")public Object list(@PathVariable String entity,@RequestParam(defaultValue="")String q,@RequestParam(defaultValue="")String status,@RequestParam(defaultValue="")String from,@RequestParam(defaultValue="")String to,@RequestParam(defaultValue="0")int page,@RequestParam(defaultValue="25")int size){return erp.list(entity,q,status,from,to,page,size);}
- @GetMapping("/data/{entity}/{id}")public Object detail(@PathVariable String entity,@PathVariable long id){return erp.detail(entity,id);}
- @PostMapping("/data/{entity}")public Object create(@PathVariable String entity,@RequestBody Map<String,Object>b){return erp.create(entity,b);}
- @PutMapping("/data/{entity}/{id}")public Object update(@PathVariable String entity,@PathVariable long id,@RequestBody Map<String,Object>b){return erp.edit(entity,id,b);}
- @DeleteMapping("/data/{entity}/{id}")public void delete(@PathVariable String entity,@PathVariable long id){erp.delete(entity,id);}
- @PostMapping("/actions/{entity}/{id}/{action}")public Object action(@PathVariable String entity,@PathVariable long id,@PathVariable String action,@RequestBody Map<String,Object>b){return erp.action(entity,id,action,b);}
- @PostMapping("/stock-moves")public Object stock(@RequestBody Map<String,Object>b){return erp.stock(b);}
- @PostMapping("/journals")public Object journal(@RequestBody Map<String,Object>b){return erp.manualJournal(b);}
- @PostMapping("/transfers")public Object transfer(@RequestBody Map<String,Object>b){return erp.transfer(b);}
- @PostMapping("/order-lines/{id}/{action}")public Object line(@PathVariable long id,@PathVariable String action,@RequestBody Map<String,Object>b){return erp.lineAction(id,action,b);}
- @PostMapping("/orders/{id}/lines")public Object addLines(@PathVariable long id,@RequestBody Map<String,Object>b){return erp.addOrderLines(id,b);}
- @GetMapping("/board")public Object board(){access.module("sales","read");return map("areas",db.rows("SELECT * FROM areas"),"tables",db.rows("SELECT t.*,a.name AS area_name,o.id AS order_id,o.total FROM dining_tables t JOIN areas a ON a.id=t.area_id LEFT JOIN orders o ON o.table_id=t.id AND o.status IN ('ABIERTO','PAGAR') ORDER BY t.id"),"orders",db.rows("SELECT o.*,t.name AS table_name FROM orders o LEFT JOIN dining_tables t ON o.table_id=t.id WHERE o.status IN ('ABIERTO','PAGAR') ORDER BY o.id"),"lines",db.rows("SELECT l.*,d.name AS dish_name,o.table_id,t.name AS table_name,o.created_at FROM order_lines l JOIN dishes d ON d.id=l.dish_id JOIN orders o ON o.id=l.order_id LEFT JOIN dining_tables t ON t.id=o.table_id WHERE o.status IN ('ABIERTO','PAGAR') AND l.status<>'CANCELADO' ORDER BY l.id"));}
- @GetMapping("/dashboard")public Object dashboard(@RequestParam(required=false)String from,@RequestParam(required=false)String to){LocalDate start=from==null?today().withDayOfMonth(1):LocalDate.parse(from),end=to==null?today():LocalDate.parse(to);require(!end.isBefore(start),"Fechas inválidas");var result=map("from",start,"to",end,"company",db.one("SELECT trade_name,address FROM company WHERE id=1"));if(access.allowed("sales","read")){result.put("sales",db.sum("SELECT COALESCE(SUM(total),0) FROM invoices WHERE status='EMITIDO' AND date BETWEEN ? AND ?",start,end));result.put("tickets",db.count("SELECT COUNT(*) FROM invoices WHERE status='EMITIDO' AND date BETWEEN ? AND ?",start,end));result.put("openOrders",db.count("SELECT COUNT(*) FROM orders WHERE status IN ('ABIERTO','PAGAR')"));result.put("daily",db.rows("SELECT date,SUM(total) total FROM invoices WHERE status='EMITIDO' AND date BETWEEN ? AND ? GROUP BY date ORDER BY date",start,end));result.put("topDishes",db.rows("SELECT d.name,SUM(l.quantity) quantity,SUM(l.quantity*l.unit_price-l.discount) revenue FROM order_lines l JOIN dishes d ON d.id=l.dish_id JOIN invoices i ON i.order_id=l.order_id WHERE i.status='EMITIDO' AND l.status<>'CANCELADO' AND i.date BETWEEN ? AND ? GROUP BY d.id,d.name ORDER BY revenue DESC LIMIT 5",start,end));}
- if(access.allowed("finance","read")||access.allowed("accounting","read")){result.put("cash",db.rows("SELECT * FROM cash_accounts ORDER BY id"));result.put("receivables",db.sum("SELECT COALESCE(SUM(total-paid-credit),0) FROM receivables WHERE status NOT IN ('PAGADA','ANULADA')"));result.put("payables",db.sum("SELECT COALESCE(SUM(total-paid-credit),0) FROM payables WHERE status NOT IN ('PAGADA','ANULADA')"));result.put("due",db.rows("SELECT * FROM payables WHERE status NOT IN ('PAGADA','ANULADA') AND due_date<=? ORDER BY due_date LIMIT 10",today().plusDays(3)));result.put("budgets",db.rows("SELECT * FROM budgets ORDER BY id DESC"));result.put("expenseStructure",db.rows("SELECT a.name,SUM(l.debit-l.credit) amount FROM journal_lines l JOIN accounts a ON a.id=l.account_id JOIN journals j ON j.id=l.journal_id WHERE a.type IN ('GASTO','COSTO') AND j.date BETWEEN ? AND ? GROUP BY a.id,a.name HAVING SUM(l.debit-l.credit)<>0 ORDER BY amount DESC",start,end));result.put("profit",db.sum("SELECT COALESCE(SUM(CASE WHEN a.type='INGRESO' THEN l.credit-l.debit ELSE -(l.debit-l.credit) END),0) FROM journal_lines l JOIN accounts a ON a.id=l.account_id JOIN journals j ON j.id=l.journal_id WHERE a.type IN ('INGRESO','GASTO','COSTO') AND j.date BETWEEN ? AND ?",start,end));}
- if(access.allowed("logistics","read")){result.put("stockAlerts",db.rows("SELECT r.*,p.name,p.unit,COALESCE(s.quantity,0) quantity,w.name warehouse FROM stock_rules r JOIN products p ON p.id=r.product_id JOIN warehouses w ON w.id=r.warehouse_id LEFT JOIN stocks s ON s.product_id=r.product_id AND s.warehouse_id=r.warehouse_id WHERE COALESCE(s.quantity,0)<=r.minimum+5 OR COALESCE(s.quantity,0)>=r.maximum ORDER BY COALESCE(s.quantity,0)-r.minimum"));}
- if(access.allowed("hr","read")){result.put("staff",db.count("SELECT COUNT(*) FROM employees WHERE status='ACTIVO'"));result.put("attendance",db.rows("SELECT e.name,e.last_name,SUM(a.late_minutes) late_minutes,SUM(a.extra_hours) extra_hours,COUNT(a.id) records FROM employees e LEFT JOIN attendance a ON a.employee_id=e.id AND a.date BETWEEN ? AND ? GROUP BY e.id,e.name,e.last_name",start,end));}return result;}
- @GetMapping("/reports/balances")public Object balances(@RequestParam(required=false)String from,@RequestParam(required=false)String to){access.module("accounting","read");LocalDate end=to==null?today():LocalDate.parse(to);LocalDate start=from==null?LocalDate.of(2000,1,1):LocalDate.parse(from);return db.rows("SELECT a.code,a.name,a.type,COALESCE(SUM(x.debit),0) debit,COALESCE(SUM(x.credit),0) credit,COALESCE(SUM(x.debit-x.credit),0) balance FROM accounts a LEFT JOIN (SELECT l.* FROM journal_lines l JOIN journals j ON j.id=l.journal_id WHERE j.date BETWEEN ? AND ?) x ON x.account_id=a.id GROUP BY a.id,a.code,a.name,a.type ORDER BY a.code",start,end);}
- @GetMapping("/reports/aging/{side}")public Object aging(@PathVariable String side){require(List.of("receivables","payables").contains(side),"Reporte inválido");access.module("accounting","read");return db.rows("SELECT * FROM "+side+" WHERE status NOT IN ('PAGADA','ANULADA') ORDER BY due_date").stream().map(x->{x.put("balance",dec(x,"total").subtract(dec(x,"paid")).subtract(dec(x,"credit")));long days=java.time.temporal.ChronoUnit.DAYS.between(LocalDate.parse(str(x,"due_date")),today());x.put("overdue_days",Math.max(0,days));x.put("bucket",days<=0?"Por vencer":days<=30?"1–30 días":days<=60?"31–60 días":days<=90?"61–90 días":"Más de 90 días");return x;}).toList();}
- @GetMapping("/permissions")public Object permissions(){access.module("admin","read");return db.rows("SELECT * FROM permissions ORDER BY role,module");}
- @PutMapping("/permissions/{id}")@Transactional public void permission(@PathVariable long id,@RequestBody Map<String,Object>b){access.module("admin","write");db.lock("company",1);require(b.keySet().stream().allMatch(k->List.of("can_read","can_write","can_approve","can_export").contains(k)),"Permisos inválidos");for(var value:b.values())require(value instanceof Boolean,"Permisos inválidos");var row=db.get("permissions",id);db.exec("UPDATE permissions SET can_read=?,can_write=?,can_approve=?,can_export=? WHERE id=?",b.get("can_read"),b.get("can_write"),b.get("can_approve"),b.get("can_export"),id);access.audit("PERMISOS","permissions",id,str(row,"role")+" "+str(row,"module"));}
+
+    final Store db;
+    final Catalog cat;
+    final Access access;
+    final ErpService erp;
+    final Ledger ledger;
+
+    public ApiController(Store d, Catalog c, Access a, ErpService e, Ledger l) {
+        db = d;
+        cat = c;
+        access = a;
+        erp = e;
+        ledger = l;
+    }
+
+    @GetMapping("/catalog")
+    public Object catalog() {
+        return cat.entities.stream().filter(e -> access.allowed(str(e, "module"), "read")).toList();
+    }
+
+    @GetMapping("/lookups")
+    public Object lookups() {
+        var keys = new HashSet<String>();
+        for (var e : cat.entities)
+            if (access.allowed(str(e, "module"), "read"))
+                for (var f : cat.fields(str(e, "key")))
+                    if (f.containsKey("ref"))
+                        keys.add(str(f, "ref"));
+        if (access.allowed("sales", "read"))
+            keys.addAll(List.of("warehouses", "cash_accounts", "dishes", "products", "dining_tables", "areas"));
+        if (access.allowed("hr", "read") || access.allowed("finance", "read") || access.allowed("accounting", "read"))
+            keys.add("cash_accounts");
+        var out = new LinkedHashMap<String, Object>();
+        for (String entity : keys) {
+            String label = cat.fields(entity).stream().anyMatch(f -> str(f, "key").equals("name")) ? "name"
+                    : cat.fields(entity).stream().anyMatch(f -> str(f, "key").equals("code")) ? "code" : "id";
+            out.put(entity, db.rows("SELECT id," + label + " AS label FROM " + entity + " ORDER BY id LIMIT 2000"));
+        }
+        return out;
+    }
+
+    @GetMapping("/data/{entity}")
+    public Object list(@PathVariable String entity, @RequestParam(defaultValue = "") String q,
+            @RequestParam(defaultValue = "") String status, @RequestParam(defaultValue = "") String from,
+            @RequestParam(defaultValue = "") String to, @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "25") int size) {
+        return erp.list(entity, q, status, from, to, page, size);
+    }
+
+    @GetMapping("/data/{entity}/{id}")
+    public Object detail(@PathVariable String entity, @PathVariable long id) {
+        return erp.detail(entity, id);
+    }
+
+    @PostMapping("/data/{entity}")
+    public Object create(@PathVariable String entity, @RequestBody Map<String, Object> b) {
+        return erp.create(entity, b);
+    }
+
+    @PutMapping("/data/{entity}/{id}")
+    public Object update(@PathVariable String entity, @PathVariable long id, @RequestBody Map<String, Object> b) {
+        return erp.edit(entity, id, b);
+    }
+
+    @DeleteMapping("/data/{entity}/{id}")
+    public void delete(@PathVariable String entity, @PathVariable long id) {
+        erp.delete(entity, id);
+    }
+
+    @PostMapping("/actions/{entity}/{id}/{action}")
+    public Object action(@PathVariable String entity, @PathVariable long id, @PathVariable String action,
+            @RequestBody Map<String, Object> b) {
+        return erp.action(entity, id, action, b);
+    }
+
+    @PostMapping("/stock-moves")
+    public Object stock(@RequestBody Map<String, Object> b) {
+        return erp.stock(b);
+    }
+
+    @PostMapping("/journals")
+    public Object journal(@RequestBody Map<String, Object> b) {
+        return erp.manualJournal(b);
+    }
+
+    @PostMapping("/transfers")
+    public Object transfer(@RequestBody Map<String, Object> b) {
+        return erp.transfer(b);
+    }
+
+    @PostMapping("/order-lines/{id}/{action}")
+    public Object line(@PathVariable long id, @PathVariable String action, @RequestBody Map<String, Object> b) {
+        return erp.lineAction(id, action, b);
+    }
+
+    @PostMapping("/orders/{id}/lines")
+    public Object addLines(@PathVariable long id, @RequestBody Map<String, Object> b) {
+        return erp.addOrderLines(id, b);
+    }
+
+    @GetMapping("/board")
+    public Object board() {
+        access.module("sales", "read");
+        return map("areas", db.rows("SELECT * FROM areas"), "tables", db.rows(
+                "SELECT t.*,a.name AS area_name,o.id AS order_id,o.total FROM dining_tables t JOIN areas a ON a.id=t.area_id LEFT JOIN orders o ON o.table_id=t.id AND o.status IN ('ABIERTO','PAGAR') ORDER BY t.id"),
+                "orders",
+                db.rows("SELECT o.*,t.name AS table_name FROM orders o LEFT JOIN dining_tables t ON o.table_id=t.id WHERE o.status IN ('ABIERTO','PAGAR') ORDER BY o.id"),
+                "lines",
+                db.rows("SELECT l.*,d.name AS dish_name,o.table_id,t.name AS table_name,o.created_at FROM order_lines l JOIN dishes d ON d.id=l.dish_id JOIN orders o ON o.id=l.order_id LEFT JOIN dining_tables t ON t.id=o.table_id WHERE o.status IN ('ABIERTO','PAGAR') AND l.status<>'CANCELADO' ORDER BY l.id"));
+    }
+
+    @GetMapping("/dashboard")
+    public Object dashboard(@RequestParam(required = false) String from, @RequestParam(required = false) String to) {
+        LocalDate start = from == null ? today().withDayOfMonth(1) : LocalDate.parse(from),
+                end = to == null ? today() : LocalDate.parse(to);
+        require(!end.isBefore(start), "Fechas inválidas");
+        var result = map("from", start, "to", end, "company",
+                db.one("SELECT trade_name,address FROM company WHERE id=1"));
+        if (access.allowed("sales", "read")) {
+            result.put("sales", db.sum(
+                    "SELECT COALESCE(SUM(total),0) FROM invoices WHERE status='EMITIDO' AND date BETWEEN ? AND ?",
+                    start, end));
+            result.put("tickets", db.count(
+                    "SELECT COUNT(*) FROM invoices WHERE status='EMITIDO' AND date BETWEEN ? AND ?", start, end));
+            result.put("openOrders", db.count("SELECT COUNT(*) FROM orders WHERE status IN ('ABIERTO','PAGAR')"));
+            result.put("daily", db.rows(
+                    "SELECT date,SUM(total) total FROM invoices WHERE status='EMITIDO' AND date BETWEEN ? AND ? GROUP BY date ORDER BY date",
+                    start, end));
+            result.put("topDishes", db.rows(
+                    "SELECT d.name,SUM(l.quantity) quantity,SUM(l.quantity*l.unit_price-l.discount) revenue FROM order_lines l JOIN dishes d ON d.id=l.dish_id JOIN invoices i ON i.order_id=l.order_id WHERE i.status='EMITIDO' AND l.status<>'CANCELADO' AND i.date BETWEEN ? AND ? GROUP BY d.id,d.name ORDER BY revenue DESC LIMIT 5",
+                    start, end));
+        }
+        if (access.allowed("finance", "read") || access.allowed("accounting", "read")) {
+            result.put("cash", db.rows("SELECT * FROM cash_accounts ORDER BY id"));
+            result.put("receivables", db.sum(
+                    "SELECT COALESCE(SUM(total-paid-credit),0) FROM receivables WHERE status NOT IN ('PAGADA','ANULADA')"));
+            result.put("payables", db.sum(
+                    "SELECT COALESCE(SUM(total-paid-credit),0) FROM payables WHERE status NOT IN ('PAGADA','ANULADA')"));
+            result.put("due", db.rows(
+                    "SELECT * FROM payables WHERE status NOT IN ('PAGADA','ANULADA') AND due_date<=? ORDER BY due_date LIMIT 10",
+                    today().plusDays(3)));
+            result.put("budgets", db.rows("SELECT * FROM budgets ORDER BY id DESC"));
+            result.put("expenseStructure", db.rows(
+                    "SELECT a.name,SUM(l.debit-l.credit) amount FROM journal_lines l JOIN accounts a ON a.id=l.account_id JOIN journals j ON j.id=l.journal_id WHERE a.type IN ('GASTO','COSTO') AND j.date BETWEEN ? AND ? GROUP BY a.id,a.name HAVING SUM(l.debit-l.credit)<>0 ORDER BY amount DESC",
+                    start, end));
+            result.put("profit", db.sum(
+                    "SELECT COALESCE(SUM(CASE WHEN a.type='INGRESO' THEN l.credit-l.debit ELSE -(l.debit-l.credit) END),0) FROM journal_lines l JOIN accounts a ON a.id=l.account_id JOIN journals j ON j.id=l.journal_id WHERE a.type IN ('INGRESO','GASTO','COSTO') AND j.date BETWEEN ? AND ?",
+                    start, end));
+        }
+        if (access.allowed("logistics", "read")) {
+            result.put("stockAlerts", db.rows(
+                    "SELECT r.*,p.name,p.unit,COALESCE(s.quantity,0) quantity,w.name warehouse FROM stock_rules r JOIN products p ON p.id=r.product_id JOIN warehouses w ON w.id=r.warehouse_id LEFT JOIN stocks s ON s.product_id=r.product_id AND s.warehouse_id=r.warehouse_id WHERE COALESCE(s.quantity,0)<=r.minimum+5 OR COALESCE(s.quantity,0)>=r.maximum ORDER BY COALESCE(s.quantity,0)-r.minimum"));
+        }
+        if (access.allowed("hr", "read")) {
+            result.put("staff", db.count("SELECT COUNT(*) FROM employees WHERE status='ACTIVO'"));
+            result.put("attendance", db.rows(
+                    "SELECT e.name,e.last_name,SUM(a.late_minutes) late_minutes,SUM(a.extra_hours) extra_hours,COUNT(a.id) records FROM employees e LEFT JOIN attendance a ON a.employee_id=e.id AND a.date BETWEEN ? AND ? GROUP BY e.id,e.name,e.last_name",
+                    start, end));
+        }
+        return result;
+    }
+
+    @GetMapping("/reports/balances")
+    public Object balances(@RequestParam(required = false) String from, @RequestParam(required = false) String to) {
+        access.module("accounting", "read");
+        LocalDate end = to == null ? today() : LocalDate.parse(to);
+        LocalDate start = from == null ? LocalDate.of(2000, 1, 1) : LocalDate.parse(from);
+        return db.rows(
+                "SELECT a.code,a.name,a.type,COALESCE(SUM(x.debit),0) debit,COALESCE(SUM(x.credit),0) credit,COALESCE(SUM(x.debit-x.credit),0) balance FROM accounts a LEFT JOIN (SELECT l.* FROM journal_lines l JOIN journals j ON j.id=l.journal_id WHERE j.date BETWEEN ? AND ?) x ON x.account_id=a.id GROUP BY a.id,a.code,a.name,a.type ORDER BY a.code",
+                start, end);
+    }
+
+    @GetMapping("/reports/aging/{side}")
+    public Object aging(@PathVariable String side) {
+        require(List.of("receivables", "payables").contains(side), "Reporte inválido");
+        access.module("accounting", "read");
+        return db.rows("SELECT * FROM " + side + " WHERE status NOT IN ('PAGADA','ANULADA') ORDER BY due_date").stream()
+                .map(x -> {
+                    x.put("balance", dec(x, "total").subtract(dec(x, "paid")).subtract(dec(x, "credit")));
+                    long days = java.time.temporal.ChronoUnit.DAYS.between(LocalDate.parse(str(x, "due_date")),
+                            today());
+                    x.put("overdue_days", Math.max(0, days));
+                    x.put("bucket",
+                            days <= 0 ? "Por vencer"
+                                    : days <= 30 ? "1–30 días"
+                                            : days <= 60 ? "31–60 días" : days <= 90 ? "61–90 días" : "Más de 90 días");
+                    return x;
+                }).toList();
+    }
+
+    @GetMapping("/permissions")
+    public Object permissions() {
+        access.module("admin", "read");
+        return db.rows("SELECT * FROM permissions ORDER BY role,module");
+    }
+
+    @PutMapping("/permissions/{id}")
+    @Transactional
+    public void permission(@PathVariable long id, @RequestBody Map<String, Object> b) {
+        access.module("admin", "write");
+        db.lock("company", 1);
+        require(b.keySet().stream().allMatch(
+                k -> List.of("can_read", "can_write", "can_approve", "can_export").contains(k)), "Permisos inválidos");
+        for (var value : b.values())
+            require(value instanceof Boolean, "Permisos inválidos");
+        var row = db.get("permissions", id);
+        db.exec("UPDATE permissions SET can_read=?,can_write=?,can_approve=?,can_export=? WHERE id=?",
+                b.get("can_read"), b.get("can_write"), b.get("can_approve"), b.get("can_export"), id);
+        access.audit("PERMISOS", "permissions", id, str(row, "role") + " " + str(row, "module"));
+    }
 }
